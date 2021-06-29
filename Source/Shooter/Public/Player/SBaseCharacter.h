@@ -4,10 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+//#include "Components/SHealthComponent.h"
 #include "SBaseCharacter.generated.h"
 
 class UCameraComponent;
 class USpringArmComponent;
+class USHealthComponent;
+class UTextRenderComponent;
 
 UCLASS()
 class SHOOTER_API ASBaseCharacter : public ACharacter
@@ -25,6 +28,21 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 		USpringArmComponent* SpringArmComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+		USHealthComponent* HealthComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+		UTextRenderComponent* HealthTextComponent;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Animation")
+		UAnimMontage* DeathAnimMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Damage")
+		FVector2D LandedDamageVelocity = FVector2D(900.0f,1200.0f);
+
+	UPROPERTY(EditDefaultsOnly, Category = "Damage")
+		FVector2D LandedDamage = FVector2D(10.0f, 100.0f);
 
 	virtual void BeginPlay() override;
 
@@ -49,4 +67,9 @@ private:
 
 	void OnStartRunning();
 	void OnStopRunning();
+	void OnDeath();
+	void OnHealthChanged(float Health);
+
+	UFUNCTION()
+		void OnGroundLanded(const FHitResult& Hit);
 };

@@ -6,6 +6,11 @@
 #include "Components/InputComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/SCharacterMovementComponent.h"
+#include "Components/SHealthComponent.h"
+#include "Components/TextRenderComponent.h"
+#include "GameFramework/Controller.h"
+
+DEFINE_LOG_CATEGORY_STATIC(BaseCharacterLog,All,All);
 
 // Sets default values
 ASBaseCharacter::ASBaseCharacter(const FObjectInitializer& ObjInit): Super(ObjInit.SetDefaultSubobjectClass<USCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
@@ -20,20 +25,36 @@ ASBaseCharacter::ASBaseCharacter(const FObjectInitializer& ObjInit): Super(ObjIn
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
 	CameraComponent->SetupAttachment(SpringArmComponent);
 
+	HealthComponent = CreateDefaultSubobject<USHealthComponent>("HealthComponent");
+
+	HealthTextComponent = CreateDefaultSubobject<UTextRenderComponent>("HealthTextComponent");
+	HealthTextComponent->SetupAttachment(GetRootComponent());
+
 }
 
 // Called when the game starts or when spawned
 void ASBaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	check(HealthComponent);
+	check(HealthTextComponent);
+	check(GetCharacterMovement());
+
+	OnHealthChanged(HealthComponent->GetHealth());
+	HealthComponent->OnDeath.AddUObject(this,&ASBaseCharacter::OnDeath);
+	HealthComponent->OnHealthChanged.AddUObject(this, &ASBaseCharacter::OnHealthChanged);
+
+	LandedDelegate.AddDynamic(this, &ASBaseCharacter::OnGroundLanded);
 }
 
 // Called every frame
 void ASBaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	//const auto Health = HealthComponent->GetHealth();
+	
 
+	//TakeDamage(0.1f,FDamageEvent(),Controller,this);
 }
 
 // Called to bind functionality to input
@@ -89,4 +110,34 @@ void ASBaseCharacter::OnStopRunning()
 	WantsToRuns = false;
 }
 
+void ASBaseCharacter::OnDeath()
+{
+	UE_LOG(BaseCharacterLog,Display,TEXT("Player %s is dead"), *GetName());
 
+	PlayAnimMontage(DeathAnimMontage);
+
+	GetCharacterMovement()->DisableMovement();
+	SetLifeSpan(5.0f);
+
+	if (Controller)
+	{
+		Controller->ChangeState(NAME_Spectating);
+	}
+}
+
+void ASBaseCharacter::OnHealthChanged(float Health)
+{
+	HealthTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), Health)));
+}
+
+void ASBaseCharacter::OnGroundLanded(const FHitResult& Hit)
+{
+	const auto FallVelocityZ = GetCharacterMovement()->Velocity.Z * -1;
+	UE_LOG(BaseCharacterLog,Display,TEXT("On landed: %f"),FallVelocityZ);
+
+	if (FallVelocityZ < LandedDamageVelocity.X)return;
+
+	const auto FinalDamage = FMath::GetMappedRangeValueClamped(LandedDamageVelocity,LandedDamage, FallVelocityZ);
+	UE_LOG(BaseCharacterLog, Display, TEXT("FinalDamage: %f"), FinalDamage);
+	TakeDamage(FinalDamage, FDamageEvent{},nullptr,nullptr);
+}
