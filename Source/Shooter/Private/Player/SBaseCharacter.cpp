@@ -9,6 +9,7 @@
 #include "Components/SHealthComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "GameFramework/Controller.h"
+#include "Components/SWeaponComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(BaseCharacterLog,All,All);
 
@@ -21,6 +22,7 @@ ASBaseCharacter::ASBaseCharacter(const FObjectInitializer& ObjInit): Super(ObjIn
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("SpringArmComponent");
 	SpringArmComponent->SetupAttachment(GetRootComponent());
 	SpringArmComponent->bUsePawnControlRotation = true;
+	SpringArmComponent->SocketOffset = FVector(0.0f, 100.0f, 80.0f);
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
 	CameraComponent->SetupAttachment(SpringArmComponent);
@@ -29,7 +31,9 @@ ASBaseCharacter::ASBaseCharacter(const FObjectInitializer& ObjInit): Super(ObjIn
 
 	HealthTextComponent = CreateDefaultSubobject<UTextRenderComponent>("HealthTextComponent");
 	HealthTextComponent->SetupAttachment(GetRootComponent());
+	HealthTextComponent->SetOwnerNoSee(true);
 
+	WeaponComponent = CreateDefaultSubobject<USWeaponComponent>("WeaponComponent");
 }
 
 // Called when the game starts or when spawned
@@ -45,6 +49,7 @@ void ASBaseCharacter::BeginPlay()
 	HealthComponent->OnHealthChanged.AddUObject(this, &ASBaseCharacter::OnHealthChanged);
 
 	LandedDelegate.AddDynamic(this, &ASBaseCharacter::OnGroundLanded);
+	//WeaponComponent->SpawnWeapon();
 }
 
 // Called every frame
@@ -68,6 +73,7 @@ void ASBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	PlayerInputComponent->BindAction("Jump",IE_Pressed,this,&ASBaseCharacter::Jump);
 	PlayerInputComponent->BindAction("Run",IE_Pressed,this,&ASBaseCharacter::OnStartRunning);
 	PlayerInputComponent->BindAction("Run", IE_Released, this, &ASBaseCharacter::OnStopRunning);
+	PlayerInputComponent->BindAction("Fire", IE_Released, WeaponComponent, &USWeaponComponent::Fire);
 }
 
 bool ASBaseCharacter::IsRunning() const
