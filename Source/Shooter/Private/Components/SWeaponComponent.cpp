@@ -48,6 +48,7 @@ void USWeaponComponent::SpawnWeapon()
 	FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, false);
 	//b_RightWeaponSocket
 	CurentWeapon->AttachToComponent(Character->GetMesh(), AttachmentRules, WeaponAttachPointName);
+	CurentWeapon->SetOwner(Character);
 	
 }
 
