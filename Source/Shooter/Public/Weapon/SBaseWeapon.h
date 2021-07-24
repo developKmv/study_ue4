@@ -18,10 +18,17 @@ public:
 	ASBaseWeapon();
 	virtual void Fire();
 	void MakeShot();
+	
 
 protected:
 	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	virtual void BeginPlay() override;	
+	bool GetPlayerViewPoint(FVector& ViewLocation,FRotator& ViewRotation) const;
+	bool GetTraceData(FVector& TraceStart,FVector& TraceEnd) const;
+	void MakeHit(FHitResult& HitResult, FVector& TraceStart, FVector& TraceEnd);
+
+	FVector GetMuzzleWorldLocation() const;
+	APlayerController* GetPlayerController() const;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 		USkeletalMeshComponent* WeaponMesh;
