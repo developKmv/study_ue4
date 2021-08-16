@@ -26,10 +26,24 @@ void ASBaseWeapon::BeginPlay()
 	check(WeaponMesh)
 }
 
-void ASBaseWeapon::Fire()
+//void ASBaseWeapon::Fire()
+//{
+//	UE_LOG(BaseWeaponLog, Display, TEXT("Piu Piu"));
+//	MakeShot();
+//}
+
+void ASBaseWeapon::StartFire()
 {
-	UE_LOG(BaseWeaponLog, Display, TEXT("Piu Piu"));
+	//UE_LOG(BaseWeaponLog, Display, TEXT("Piu Piu"));
 	MakeShot();
+	GetWorldTimerManager().SetTimer(ShotTimerHandle, this, &ASBaseWeapon::MakeShot, TimeBetweenShots, true);
+}
+
+void ASBaseWeapon::StopFire()
+{
+	//UE_LOG(BaseWeaponLog, Display, TEXT("Piu Piu"));
+	//MakeShot();
+	GetWorldTimerManager().ClearTimer(ShotTimerHandle);
 }
 
 void ASBaseWeapon::MakeShot()
@@ -104,7 +118,8 @@ bool ASBaseWeapon::GetTraceData(FVector& TraceStart, FVector& TraceEnd) const
 	if (!GetPlayerViewPoint(ViewLocation, ViewRotation)) return false;
 
 	TraceStart = ViewLocation;
-	const FVector ShootDirection = ViewRotation.Vector();
+	const auto HalfRad = FMath::DegreesToRadians(BulletSpread);
+	const FVector ShootDirection = FMath::VRandCone(ViewRotation.Vector(),HalfRad);
 	TraceEnd = TraceStart + ShootDirection * TraceMaxDistance;
 
 	return true;

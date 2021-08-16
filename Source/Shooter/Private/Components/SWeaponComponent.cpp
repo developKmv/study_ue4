@@ -52,8 +52,20 @@ void USWeaponComponent::SpawnWeapon()
 	
 }
 
-void USWeaponComponent::Fire()
+//void USWeaponComponent::Fire()
+//{
+//	if (!CurentWeapon)return;
+//	CurentWeapon->Fire();
+//}
+
+void USWeaponComponent::StartFire()
 {
 	if (!CurentWeapon)return;
-	CurentWeapon->Fire();
+	CurentWeapon->StartFire();
+}
+
+void USWeaponComponent::StopFire()
+{
+	if (!CurentWeapon)return;
+	CurentWeapon->StopFire();
 }

@@ -16,7 +16,9 @@ class SHOOTER_API ASBaseWeapon : public AActor
 public:	
 	// Sets default values for this actor's properties
 	ASBaseWeapon();
-	virtual void Fire();
+	//virtual void Fire();
+	virtual void StartFire();
+	virtual void StopFire();
 	void MakeShot();
 	
 
@@ -42,4 +44,14 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		float DamageAmount = 10.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		float TimeBetweenShots = 0.1f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		float BulletSpread = 1.5f;
+
+private:
+	FTimerHandle ShotTimerHandle;
+		
 };

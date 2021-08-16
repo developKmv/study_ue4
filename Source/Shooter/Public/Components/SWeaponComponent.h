@@ -18,7 +18,9 @@ public:
 	// Sets default values for this component's properties
 	USWeaponComponent();
 	//void SpawnWeapon();
-	void Fire();
+	//void Fire();
+	void StartFire();
+	void StopFire();
 
 protected:
 	// Called when the game starts
