@@ -26,6 +26,7 @@ protected:
 	bool GetPlayerViewPoint(FVector& ViewLocation,FRotator& ViewRotation) const;
 	bool GetTraceData(FVector& TraceStart,FVector& TraceEnd) const;
 	void MakeHit(FHitResult& HitResult, FVector& TraceStart, FVector& TraceEnd);
+	void MakeDamage(const FHitResult& HitResult);
 
 	FVector GetMuzzleWorldLocation() const;
 	APlayerController* GetPlayerController() const;
@@ -38,4 +39,7 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		float TraceMaxDistance=1500.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		float DamageAmount = 10.0f;
 };

@@ -63,6 +63,7 @@ void ASBaseWeapon::MakeShot()
 
 	if (HitResult.bBlockingHit)
 	{
+		MakeDamage(HitResult);
 		DrawDebugLine(GetWorld(), GetMuzzleWorldLocation(), HitResult.ImpactPoint, FColor::Red, false, 3.0f, 0, 3.0f);
 		DrawDebugSphere(GetWorld(),HitResult.ImpactPoint,10.0f,24,FColor::Red,false,5.0f);
 		UE_LOG(BaseWeaponLog, Display, TEXT("Bone: %s"),*HitResult.BoneName.ToString());
@@ -116,4 +117,12 @@ void ASBaseWeapon::MakeHit(FHitResult& HitResult,FVector& TraceStart,FVector& Tr
 	FCollisionQueryParams CollisionParams;
 	CollisionParams.AddIgnoredActor(GetOwner());
 	GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECollisionChannel::ECC_Visibility, CollisionParams);
+}
+
+void ASBaseWeapon::MakeDamage(const FHitResult& HitResult)
+{
+	const auto DamageActor = HitResult.GetActor();
+	if (!DamageActor)return;
+
+	DamageActor->TakeDamage(DamageAmount, FDamageEvent(), GetPlayerController(), this);
 }
